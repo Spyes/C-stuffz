@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <ctype.h>
 
 // Input states
 #define DIGIT 1
@@ -11,6 +12,24 @@
 #define MUL 12
 #define DIV 13
 
+int do_calculation(int *calc)
+{
+    int num1 = calc[0];
+    int num2 = calc[2];
+    int op   = calc[1];
+    int r;
+    
+    switch (op) {
+    case ADD:
+        r = num1 + num2;
+        break;
+    default:
+        break;
+    }
+    printf("%i\n", r);
+    return r;
+}
+
 int main(int argc, char **argv)
 {
     int ch;
@@ -19,12 +38,23 @@ int main(int argc, char **argv)
     int cur_n = 0;
     int num_set = 0;
     int i = 0;
-    int j = 0;
+    int parans = 0;
+    int result = 0;
+    
     while ((ch = getchar()) != EOF) {
+        if (ch == '\n')
+            ;//do_calculation();
         if (input_state == DIGIT) {
             if (!isdigit(ch)) {
-                if (isblank(ch) && num_set)
+                if (ch == '(')
+                    parans++;
+                else if (ch == ')') {
+                    parans--;
+                    if (parans == 0)
+                        ;// do calculation
+                } else if (isblank(ch) && num_set) {
                     input_state = OPER;
+                }
                 continue;
             }
             num_set = 1;
@@ -54,9 +84,11 @@ int main(int argc, char **argv)
                 calc_state = DIV;
                 break;
             }
-            printf("%i\n", calc_state);
+            current_calc[1] = calc_state;
             input_state = DIGIT;
         }
     }
+    
+    printf("Result: %i\n", result);
     return 0;
 }
