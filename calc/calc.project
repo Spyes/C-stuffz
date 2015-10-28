@@ -92,5 +92,6 @@
   </Settings>
   <VirtualDirectory Name="src">
     <File Name="calc.c"/>
+    <File Name="shunting-yard.c"/>
   </VirtualDirectory>
 </CodeLite_Project>

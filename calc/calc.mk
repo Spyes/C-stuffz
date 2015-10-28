@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=Lewis Nitzberg
-Date                   :=27/10/2015
+Date                   :=28/10/2015
 CodeLitePath           :="C:\Program Files\CodeLite"
 LinkerName             :=C:/TDM-GCC-64/bin/g++.exe
 SharedObjectLinkerName :=C:/TDM-GCC-64/bin/g++.exe -shared -fPIC
@@ -62,7 +62,7 @@ AS       := C:/TDM-GCC-64/bin/as.exe
 ## User defined environment variables
 ##
 CodeLiteDir:=C:\Program Files\CodeLite
-Objects0=$(IntermediateDirectory)/calc.c$(ObjectSuffix) 
+Objects0=$(IntermediateDirectory)/calc.c$(ObjectSuffix) $(IntermediateDirectory)/shunting-yard.c$(ObjectSuffix) 
 
 
 
@@ -100,6 +100,14 @@ $(IntermediateDirectory)/calc.c$(DependSuffix): calc.c
 
 $(IntermediateDirectory)/calc.c$(PreprocessSuffix): calc.c
 	@$(CC) $(CFLAGS) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/calc.c$(PreprocessSuffix) "calc.c"
+
+$(IntermediateDirectory)/shunting-yard.c$(ObjectSuffix): shunting-yard.c $(IntermediateDirectory)/shunting-yard.c$(DependSuffix)
+	$(CC) $(SourceSwitch) "C:/Users/Lewis Nitzberg/Documents/C/calc/shunting-yard.c" $(CFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/shunting-yard.c$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/shunting-yard.c$(DependSuffix): shunting-yard.c
+	@$(CC) $(CFLAGS) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/shunting-yard.c$(ObjectSuffix) -MF$(IntermediateDirectory)/shunting-yard.c$(DependSuffix) -MM "shunting-yard.c"
+
+$(IntermediateDirectory)/shunting-yard.c$(PreprocessSuffix): shunting-yard.c
+	@$(CC) $(CFLAGS) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/shunting-yard.c$(PreprocessSuffix) "shunting-yard.c"
 
 
 -include $(IntermediateDirectory)/*$(DependSuffix)
