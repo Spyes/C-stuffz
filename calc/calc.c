@@ -12,22 +12,17 @@
 #define MUL 12
 #define DIV 13
 
-int do_calculation(int *calc)
+struct tree_el {
+    int val;
+    int operator;  // boolean
+    struct tree_el *left, *right;
+};
+
+typedef struct tree_el node;
+
+void insert(node **tree, node *item)
 {
-    int num1 = calc[0];
-    int num2 = calc[2];
-    int op   = calc[1];
-    int r;
     
-    switch (op) {
-    case ADD:
-        r = num1 + num2;
-        break;
-    default:
-        break;
-    }
-    printf("%i\n", r);
-    return r;
 }
 
 int main(int argc, char **argv)
@@ -36,14 +31,14 @@ int main(int argc, char **argv)
     int input_state = DIGIT;
     int calc_state = NULL;
     int cur_n = 0;
-    int num_set = 0;
+    int num_set = 0;  // this will allow us to forget about leading whitespaces
     int i = 0;
     int parans = 0;
     int result = 0;
-    
+
     while ((ch = getchar()) != EOF) {
         if (ch == '\n')
-            ;//do_calculation();
+            ;//do_calculation
         if (input_state == DIGIT) {
             if (!isdigit(ch)) {
                 if (ch == '(')
@@ -51,7 +46,7 @@ int main(int argc, char **argv)
                 else if (ch == ')') {
                     parans--;
                     if (parans == 0)
-                        ;// do calculation
+                        ;// do_calculation
                 } else if (isblank(ch) && num_set) {
                     input_state = OPER;
                 }
@@ -84,7 +79,6 @@ int main(int argc, char **argv)
                 calc_state = DIV;
                 break;
             }
-            current_calc[1] = calc_state;
             input_state = DIGIT;
         }
     }
