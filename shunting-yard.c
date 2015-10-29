@@ -31,30 +31,14 @@ int equal_precedence(int oper1, int oper2)
             );        
 }
 
-int main(int argc, char **argv)
+void parse_input(char *input_string, s **input, s **input_tail)
 {
-    s *input = NULL,
-	*input_tail = NULL;
-    s *output = NULL,
-        *output_tail = NULL,
-        *operators = NULL;
-    s *curr,
-	*curr_op,
-        *n,
-        *o;
     s *input_int,
 	*input_op;
-
     int input_state = DIGIT;
     int num_set = 0;
     int cur_n = 0;
-
-    int done = 0;
     int ch;
-    char input_string[30];
-    printf("Input an equation: \n\t");
-    scanf("%30[^\n]", &input_string);
-
     int i;
     for (i = 0, ch = input_string[i]; ch != '\0'; i++, ch = input_string[i]) {
         if (input_state == DIGIT) {
@@ -63,7 +47,7 @@ int main(int argc, char **argv)
                     ;
                 else if (isblank(ch) && num_set) {
 		    input_int = create_node(cur_n, 0);
-		    append(&input, &input_tail, &input_int);
+		    append(input, input_tail, &input_int);
                     input_state = OPER;
                 }
                 continue;
@@ -83,15 +67,33 @@ int main(int argc, char **argv)
          //       continue;
 
 	    input_op = create_node(ch, 1);
-	    append(&input, &input_tail, &input_op);
+	    append(input, input_tail, &input_op);
             input_state = DIGIT;
         }
     }
     // because the exist-cond is ch != '\0', we miss out on pushing the last number
     // in the equation...
     input_int = create_node(cur_n, 0);
-    append(&input, &input_tail, &input_int);
+    append(input, input_tail, &input_int);
+}
 
+int main(int argc, char **argv)
+{
+    s *input = NULL,
+	*input_tail = NULL;
+    s *output = NULL,
+        *output_tail = NULL,
+        *operators = NULL;
+    s *curr,
+	*curr_op,
+        *n,
+        *o;
+
+    char input_string[30];
+    printf("Input an equation: \n\t");
+    scanf("%30[^\n]", input_string);
+
+    parse_input(input_string, &input, &input_tail);
     while (input) {
 	curr = pop(&input);
         if (curr->oper) {

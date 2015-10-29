@@ -1,15 +1,5 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include "stack.h"
-
-struct stack {
-    int val;
-    int oper;
-    struct stack *next;
-};
-
-
-typedef struct stack s;
 
 s *create_node(int val, int oper)
 {
