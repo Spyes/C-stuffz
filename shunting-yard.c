@@ -98,7 +98,10 @@ int main(int argc, char **argv)
     }
 
     while (output != NULL) {
-        printf("%i %i\n", output->val, output->oper);
+        if (output->oper)
+            printf("%c\n", output->val);
+        else
+            printf("%i\n", output->val);
         output = output->next;
     }
 
