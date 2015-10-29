@@ -6,29 +6,36 @@
 // Input states
 #define DIGIT 1
 #define OPER 2
-#define PARAN 3
+
+int oper_precedence(int oper)
+{
+    if (oper == '^')
+	return 4;
+    else if (oper == '*' || oper == '/')
+	return 3;
+    else if (oper == '+' || oper == '-')
+	return 2;
+    return -1;
+}
 
 int isoper(int c)
 {
-    return (c == '+' || c == '-' ||
+    return (c == '^' ||
+	    c == '+' || c == '-' ||
             c == '/' || c == '*' ||
 	    c == '(' || c == ')');
 }
 
+// Does oper1 take precedence over oper2?
 int takes_precedence(int oper1, int oper2)
 {
-    return (oper1 == '*' || oper1 == '/')
-        && (oper2 == '+' || oper2 == '-');
+    // error check (oper_precedence returns -1 on err)
+    return (oper_precedence(oper1) > oper_precedence(oper2));
 }
 
 int equal_precedence(int oper1, int oper2)
 {
-    return (
-            ((oper1 == '+' && oper2 == '-') ||
-             (oper1 == '-' && oper2 == '+')) ||
-            ((oper1 == '*' && oper2 == '/') ||
-             (oper1 == '/' && oper2 == '*'))
-            );        
+    return (oper_precedence(oper1) == oper_precedence(oper2));
 }
 
 void parse_input(char *input_string, s **input, s **input_tail)
@@ -38,38 +45,28 @@ void parse_input(char *input_string, s **input, s **input_tail)
     int input_state = DIGIT;
     int num_set = 0;
     int cur_n = 0;
+
     int ch;
     int i;
     for (i = 0, ch = input_string[i]; ch != '\0'; i++, ch = input_string[i]) {
-        if (input_state == DIGIT) {
-            if (!isdigit(ch)) {
-                if (ch == '(' || ch == ')')
-                    ;
-                else if (isblank(ch) && num_set) {
-		    input_int = create_node(cur_n, 0);
-		    append(input, input_tail, &input_int);
-                    input_state = OPER;
-                }
-                continue;
-            }
-
-            num_set = 1;
-            if(num_set)
-                cur_n *= 10;
-            cur_n += ch - '0';
-        } else if (input_state == OPER) {
-            num_set = 0;
-            cur_n = 0;
-
-            if (!ispunct(ch))
-                continue;
-        //    else if (ch != '+' || ch != '-' || ch != '*' || ch != '/')
-         //       continue;
-
+	if (isdigit(ch)) {
+	    num_set = 1;
+	    cur_n *= 10;
+	    cur_n += ch - '0';
+	} else if (ispunct(ch)) {
+	    if (!isoper(ch)) return;
+	    if (num_set) {
+		input_int = create_node(cur_n, 0);
+		append(input, input_tail, &input_int);
+	    }
+	    cur_n = 0;
+	    num_set = 0;
 	    input_op = create_node(ch, 1);
 	    append(input, input_tail, &input_op);
-            input_state = DIGIT;
-        }
+	} else if (isblank(ch))
+	    ;
+	else
+	    return NULL;
     }
     // because the exist-cond is ch != '\0', we miss out on pushing the last number
     // in the equation...
@@ -121,8 +118,7 @@ int main(int argc, char **argv)
 		}
 	    }
             push(&operators, &curr);
-        }
-        else
+        } else
 	    append(&output, &output_tail, &curr);
     }
 
