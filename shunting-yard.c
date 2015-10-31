@@ -126,14 +126,13 @@ int convert_to_rpn(s *input, s **output, s **output_tail)
     while (input) {
 	curr = pop(&input);
         if (curr->oper) {
-	    if (curr->val == ')') {
+	    if (curr->oper == ')') {
 		curr_op = operators;
 		if (!curr_op)
 		    return -1;
-		while(curr_op->val != '(') {
+		while(curr_op->oper != '(') {
 		    o = pop(&operators);
 		    append(output, output_tail, &o);
-                    print_stacks((*output), operators);
 		    curr_op = operators;
 		    if (!curr_op)  // mismatching parans
 			return -1;
@@ -142,30 +141,74 @@ int convert_to_rpn(s *input, s **output, s **output_tail)
 		continue;
 	    } else {
 		curr_op = operators;
-		while (curr_op && curr_op->val != '(' &&
-		       (takes_precedence(curr->val, curr_op->val) ||
-			equal_precedence(curr->val, curr_op->val))) {
+		while (curr_op && curr_op->oper != '(' &&
+		       (takes_precedence(curr->oper, curr_op->oper) ||
+			equal_precedence(curr->oper, curr_op->oper))) {
 		    o = pop(&operators);
 		    append(output, output_tail, &o);
-                    print_stacks((*output), operators);
 		    curr_op = operators;
 		}
 	    }
             push(&operators, &curr);
-            print_stacks((*output), operators);
         } else {
 	    append(output, output_tail, &curr);
-            print_stacks((*output), operators);
         }
     }
 
     while (operators != NULL) {
-	if (operators->val == '(' || operators->val == ')') // mismatching parans
+	if (operators->oper == '(' || operators->oper == ')') // mismatching parans
 	    return -1;
         o = pop(&operators);
         append(output, output_tail, &o);
-        print_stacks((*output), operators);
     }    
+}
+
+float reverse_polish_calculation(s **head)
+{
+    s *curr;
+    s *num_curr, *num_stack_head;//, *num_stack_tail;
+    s *n1, *n2;
+    num_stack_head = NULL;
+
+    float result;
+    curr = (*head);
+
+    while (curr) {
+        if (!curr->oper) {
+            num_curr = (s*)malloc(sizeof(s));
+            num_curr->val = curr->val;
+            num_curr->oper = 0;
+            num_curr->next = num_stack_head;
+            num_stack_head = num_curr;
+            curr = curr->next;
+            continue;
+        }
+
+        // it is an operator
+        n2 = pop(&num_stack_head);
+        n1 = pop(&num_stack_head);
+
+        if (!n1 || !n2)
+            return 1;
+        if (curr->oper == '+')
+            result = n1->val + n2->val;
+        else if (curr->oper == '-')
+            result = n1->val - n2->val;
+        else if (curr->oper == '*')
+            result = n1->val * n2->val;
+        else if (curr->oper == '/')
+            result = n1->val / n2->val;
+
+        num_curr = (s*)malloc(sizeof(s));
+        num_curr->val = result;
+        num_curr->oper = 0;
+        num_curr->next = num_stack_head;
+        num_stack_head = num_curr;
+
+        curr = curr->next;
+    }
+
+    return num_curr->val;
 }
 
 int main(int argc, char **argv)
@@ -182,14 +225,8 @@ int main(int argc, char **argv)
 
     parse_input(input_string, &input, &input_tail);
     convert_to_rpn(input, &output, &output_tail);
-    /*
-    while (output != NULL) {
-        if (output->oper)
-            printf("%c\n", output->val);
-        else
-            printf("%i\n", output->val);
-        output = output->next;
-    }
-    */
+    float result = reverse_polish_calculation(&output);
+    printf("Result: %.2f\n", result);
+
     return 0;
 }

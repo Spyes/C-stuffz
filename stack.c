@@ -1,13 +1,17 @@
 #include <stdlib.h>
 #include "stack.h"
 
-s *create_node(int val, int oper)
+s *create_node(float val, int oper)
 {
     s *new_node = (s*)malloc(sizeof(s));
     if (!new_node)
         return NULL;
-    new_node->val = val;
-    new_node->oper = oper;
+    if (oper)
+        new_node->oper = val;
+    else {
+        new_node->val = val;
+        new_node->oper = 0;
+    }
     new_node->next = NULL;
     return new_node;
 }

@@ -11,7 +11,7 @@ typedef struct stack s;
 int init(s **head, s **tail, s **curr, int small)
 {
     s *temp;
-    if (small) {
+    if (small == 1) {
         (*curr) = (s*)malloc(sizeof(s));
         (*curr)->val = 4;
         (*curr)->oper = 0;
@@ -34,6 +34,43 @@ int init(s **head, s **tail, s **curr, int small)
         (*tail) = (*curr);
 
         return 2;
+    } else if (small == 2) {
+        (*curr) = (s*)malloc(sizeof(s));
+        (*curr)->val = 3;
+        (*curr)->oper = 0;
+        (*curr)->next = NULL;
+        (*head) = (*curr);
+        (*tail) = (*curr);
+
+        (*curr) = (s*)malloc(sizeof(s));
+        (*curr)->val = 2;
+        (*curr)->oper = 0;
+        (*curr)->next = NULL;
+        (*tail)->next = (*curr);
+        (*tail) = (*curr);
+
+        (*curr) = (s*)malloc(sizeof(s));
+        (*curr)->val = 2;
+        (*curr)->oper = 0;
+        (*curr)->next = NULL;
+        (*tail)->next = (*curr);
+        (*tail) = (*curr);
+
+        (*curr) = (s*)malloc(sizeof(s));
+        (*curr)->val = '+';
+        (*curr)->oper = 1;
+        (*curr)->next = NULL;
+        (*tail)->next = (*curr);
+        (*tail) = (*curr);
+
+        (*curr) = (s*)malloc(sizeof(s));
+        (*curr)->val = '-';
+        (*curr)->oper = 1;
+        (*curr)->next = NULL;
+        (*tail)->next = (*curr);
+        (*tail) = (*curr);        
+        
+        return 3;
     }
     int size = 0;
     (*curr) = (s*)malloc(sizeof(s));
@@ -120,12 +157,12 @@ int main(int argc, char **argv)
     //num_stack_tail = NULL;
     // 5 + ((1 + 2) * 4) - 3
     // 5 1 2 + 4 * + 3 -
-    int size = init(&head, &tail, &curr, 0);
+    int size = init(&head, &tail, &curr, 2);
 
     int result;
     curr = head;
 
-    while (1) {
+    while (curr) {
         if (!curr->oper) {
             num_curr = (s*)malloc(sizeof(s));
             num_curr->val = curr->val;
@@ -156,8 +193,6 @@ int main(int argc, char **argv)
         num_curr->next = num_stack_head;
         num_stack_head = num_curr;
 
-        if (curr->next == NULL)
-            break;
         curr = curr->next;
     }
 
