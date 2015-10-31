@@ -1,92 +1,65 @@
+#include "shunting-yard.h"
+#include "reverse-polish.h"
+#include "stack.h"
 #include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
 
-// Input states
-#define DIGIT 1
-#define OPER 2
-#define PARAN 3
-
-// Calculation states
-#define ADD 10
-#define SUB 11
-#define MUL 12
-#define DIV 13
-
-struct tree_el {
-    int val;
-    int operator; // boolean
-    struct tree_el* left, *right;
-};
-
-typedef struct tree_el node;
-
-// example tree of 5 + (7 - 2)
-//    +
-//  5   -
-//    7   2
-void insert(node** tree, node* item)
+int parse_input(char *input_string, s **input, s **input_tail)
 {
-    if (!(*tree)) {
-        (*tree) = item;
-        return;
+    s *input_int,
+	*input_op;
+    int num_set = 0;
+    int cur_n = 0;
+    int count = 0;
+    int ch;
+    int i;
+    for (i = 0, ch = input_string[i]; ch != '\0'; i++, ch = input_string[i]) {
+	if (isdigit(ch)) {
+	    num_set = 1;
+	    cur_n *= 10;
+	    cur_n += ch - '0';
+	} else if (ispunct(ch)) {
+	    if (!isoper(ch)) return;
+	    if (num_set) {
+		input_int = create_node(cur_n, 0);
+		append(input, input_tail, &input_int);
+                count++;
+	    }
+	    cur_n = 0;
+	    num_set = 0;
+	    input_op = create_node(ch, 1);
+	    append(input, input_tail, &input_op);
+            count++;
+	} else if (isblank(ch))
+	    ;
+	else
+	    return -1;
     }
-
-    insert(&(*tree)->left, item);
+    // because the exit-cond is ch != '\0', we miss out on pushing the last number
+    // in the equation...
+    if (cur_n) {
+        input_int = create_node(cur_n, 0);
+        append(input, input_tail, &input_int);
+        count++;
+    }
+    return count;
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-    int ch;
-    int input_state = DIGIT;
-    int cur_n = 0;
-    int num_set = 0; // this will allow us to forget about leading whitespaces
-    int parans = 0;
-    int result = 0;
-    node* curr_int, *curr_op, *root;
-    root = NULL;
+    s *input = NULL,
+	*input_tail = NULL;
+    s *output = NULL,
+        *output_tail = NULL,
+        *operators = NULL;
 
-    while ((ch = getchar()) != EOF) {
-        if (ch == '\n')
-            ; // do_calculation
+    char input_string[30];
+    printf("Input an equation: \n\t");
+    scanf("%30[^\n]", input_string);
 
-        if (input_state == DIGIT) {
-            if (!isdigit(ch)) {
-                if (ch == '(' || ch == ')')
-                    ;
-                else if (isblank(ch) && num_set) {
-                    curr_int = (node*)malloc(sizeof(node));
-                    curr_int->operator= 0;
-                    curr_int->val = cur_n;
-                    input_state = OPER;
-                }
-                continue;
-            }
+    parse_input(input_string, &input, &input_tail);
+    convert_to_rpn(input, &output, &output_tail);
+    float result = reverse_polish_calculation(&output);
+    printf("Result: %.2f\n", result);
 
-            num_set = 1;
-            ch = ch - '0';
-            if(num_set)
-                cur_n *= 10;
-            cur_n += ch;
-            printf("%i\n", cur_n);
-        } else if (input_state == OPER) {
-            num_set = 0;
-            cur_n = 0;
-
-            if (!ispunct(ch))
-                continue;
-        //    else if (ch != '+' || ch != '-' || ch != '*' || ch != '/')
-         //       continue;
-
-            curr_op = (node*)malloc(sizeof(node));
-            curr_op->operator= 1;
-            curr_op->val = ch;
-            insert(&root, curr_op);
-            insert(&root, curr_int);
-            input_state = DIGIT;
-        }
-    }
-
-    printf("Result: %i\n", result);
     return 0;
 }
