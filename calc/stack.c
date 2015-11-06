@@ -1,14 +1,20 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "stack.h"
 
-s *create_node(float val, int oper)
+s *create_node(float val, int oper, char *func)
 {
     s *new_node = (s*)malloc(sizeof(s));
     if (!new_node)
-        return NULL;
+        return NULL;  // ERROR
     if (oper)
         new_node->oper = val;
-    else {
+    else if (func) {
+	char *tempfunc = (char*)malloc(sizeof(func));
+	sprintf(tempfunc, "%s", func);
+	new_node->func = tempfunc;
+	new_node->oper = 0;
+    } else {
         new_node->val = val;
         new_node->oper = 0;
     }
@@ -33,6 +39,8 @@ void push(s **head, s **node)
 
 s *pop(s **head)
 {
+    if (!(*head))
+	return NULL;  // ERROR
     s *temp = (*head);
     (*head) = (*head)->next;
     temp->next = NULL;

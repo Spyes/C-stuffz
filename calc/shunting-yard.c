@@ -8,14 +8,22 @@
 #define ASSOC_LEFT  10
 #define ASSOC_RIGHT 11
 
+int isoper(int c)
+{
+    return (c == '^' ||
+	    c == '+' || c == '-' ||
+            c == '/' || c == '*' ||
+	    c == '(' || c == ')');
+}
+
 int oper_precedence(int oper)
 {
     if (oper == '^')
-	return 3;
+	return 4;
     else if (oper == '*' || oper == '/')
-	return 2;
+	return 3;
     else if (oper == '+' || oper == '-')
-	return 1;
+	return 2;
     return 0;
 }
 
@@ -28,24 +36,23 @@ int oper_associativity(int oper)
     return ASSOC_LEFT;
 }
 
-int isoper(int c)
+int less_than_or_equal_precedence(int oper1, int oper2)
 {
-    return (c == '^' ||
-	    c == '+' || c == '-' ||
-            c == '/' || c == '*' ||
-	    c == '(' || c == ')');
+    return oper_precedence(oper1) <= oper_precedence(oper2);
 }
 
-// Does oper1 take precedence over oper2?
-int takes_precedence(int oper1, int oper2)
+// oper1 precedence < oper2 precedence
+int less_than_precedence(int oper1, int oper2)
 {
-    // error check (oper_precedence returns -1 on err)
-    return (oper_precedence(oper1) > oper_precedence(oper2));
+    return oper_precedence(oper1) < oper_precedence(oper2);
 }
 
-int equal_precedence(int oper1, int oper2)
+void append_operators_to_output_queue(s **operators, s **output, s **output_tail, s **o2)
 {
-    return (oper_precedence(oper1) == oper_precedence(oper2));
+    s *o = pop(operators);
+    append(output, output_tail, &o);
+    if (o2)
+	(*o2) = (*operators);
 }
 
 void print_stacks(s *out, s *opers)
@@ -70,40 +77,48 @@ void print_stacks(s *out, s *opers)
         printf("%s\t%s\n", out_str, opers_str);
 }
 
+int operators_precedence_check(s *oper1, s *oper2)
+{
+    return ((oper_associativity(oper1->oper) == ASSOC_LEFT &&
+	    less_than_or_equal_precedence(oper1->oper, oper2->oper)) ||
+	(oper_associativity(oper1->oper) == ASSOC_RIGHT &&
+	 less_than_precedence(oper1->oper, oper2->oper)));
+}
+
 // rpn = reverse polish notation
 int convert_to_rpn(s *input, s **output, s **output_tail)
 {
     s *operators = NULL,
         *curr,
-        *curr_op,
+        *o2,
         *o;
     while (input) {
 	curr = pop(&input);
         if (curr->oper) {
-	    if (curr->oper == ')') {
-		curr_op = operators;
-		if (!curr_op)
+	    switch (curr->oper) {
+	    case ')':
+		o2 = operators;
+		if (!o2)
 		    return -1;
-		while(curr_op->oper != '(') {
-		    o = pop(&operators);
-		    append(output, output_tail, &o);
-		    curr_op = operators;
-		    if (!curr_op)  // mismatching parans
+		while(o2->oper != '(') {
+		    append_operators_to_output_queue(&operators, output, output_tail, &o2);
+		    if (!o2)  // mismatching parans
 			return -1;
 		}
 		pop(&operators);
-		continue;
-	    } else {
-		curr_op = operators;
-		while (curr_op && curr_op->oper != '(' &&
-		       (takes_precedence(curr->oper, curr_op->oper) ||
-			equal_precedence(curr->oper, curr_op->oper))) {
-		    o = pop(&operators);
-		    append(output, output_tail, &o);
-		    curr_op = operators;
+		break;
+	    case (!'('):
+		o2 = operators;
+		while (o2 && o2->oper != '(' &&
+		       operators_precedence_check(curr, o2)) {
+		    append_operators_to_output_queue(&operators, output, output_tail, &o2);
+		    o2 = o2->next;
 		}
+		break;
+	    default:
+		push(&operators, &curr);
+		break;
 	    }
-            push(&operators, &curr);
         } else {
 	    append(output, output_tail, &curr);
         }
@@ -112,7 +127,6 @@ int convert_to_rpn(s *input, s **output, s **output_tail)
     while (operators != NULL) {
 	if (operators->oper == '(' || operators->oper == ')') // mismatching parans
 	    return -1;
-        o = pop(&operators);
-        append(output, output_tail, &o);
+	append_operators_to_output_queue(&operators, output, output_tail, NULL);
     }    
 }
