@@ -10,7 +10,7 @@
 
 int isoper(int c)
 {
-    return (c == '^' ||
+    return (c == ',' || c == '^' ||
 	    c == '+' || c == '-' ||
             c == '/' || c == '*' ||
 	    c == '(' || c == ')');
@@ -97,6 +97,7 @@ int convert_to_rpn(s *input, s **output, s **output_tail)
         if (curr->oper) {
 	    switch (curr->oper) {
 	    case ')':
+            case ',':
 		o2 = operators;
 		if (!o2)
 		    return -1;
@@ -119,6 +120,8 @@ int convert_to_rpn(s *input, s **output, s **output_tail)
 		push(&operators, &curr);
 		break;
 	    }
+        } else if (curr->func) {
+            push(&operators, &curr);
         } else {
 	    append(output, output_tail, &curr);
         }

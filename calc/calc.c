@@ -22,7 +22,12 @@ int parse_input(char *input_string, s **input, s **input_tail)
 	    cur_n += ch - '0';
 	} else if (ispunct(ch)) {
 	    if (!isoper(ch)) return -1;
-	    if (num_set) {
+            if (ch == '(' && cur_func) {
+		input_func = create_node(0, 0, cur_func);
+		append(input, input_tail, &input_func);
+		count++;
+                sprintf(cur_func, "");
+	    } else if (num_set) {
 		input_int = create_node(cur_n, 0, NULL);
 		append(input, input_tail, &input_int);
                 count++;
@@ -35,14 +40,9 @@ int parse_input(char *input_string, s **input, s **input_tail)
             count++;
 	} else if (isalpha(ch))
 	    sprintf(cur_func, "%s%c", cur_func, ch);
-	else if (isblank(ch)) {
-	    if (cur_func) {
-		input_func = create_node(0, 0, cur_func);
-		append(input, input_tail, &input_func);
-		count++;
-	    }
-	    sprintf(cur_func, "");
-	} else
+	else if (isblank(ch))
+            ;
+	else
 	    return -1;
     }
     // because the exit-cond is ch != '\0', we miss out on pushing the last number
@@ -69,13 +69,18 @@ int main(int argc, char **argv)
 
     if (parse_input(input_string, &input, &input_tail) == -1)
 	return 1;  // ERROR
-
-    s * cur = input;
-    while (cur){
-	printf("%s\n", cur->func);
-	cur = cur->next;
+    convert_to_rpn(input, &output, &output_tail);
+    s *cur = output;
+    while (cur) {
+        if (cur->func)
+            printf("%s ", cur->func);
+        else if (cur->oper)
+            printf("%c ", cur->oper);
+        else
+            printf("%.1f ", cur->val);
+        cur = cur->next;
     }
-//    convert_to_rpn(input, &output, &output_tail);
+    printf("\n");
 //    float result = reverse_polish_calculation(&output);
 //    printf("Result: %f\n", result);
 
