@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "stack.h"
 
-s *create_node(float val, int oper, char *func)
+s *create_stack_node(float val, int oper, char *func)
 {
     s *new_node = (s*)malloc(sizeof(s));
     if (!new_node)

@@ -23,19 +23,19 @@ int parse_input(char *input_string, s **input, s **input_tail)
 	} else if (ispunct(ch)) {
 	    if (!isoper(ch)) return -1;
             if (ch == '(' && cur_func) {
-		input_func = create_node(0, 0, cur_func);
+		input_func = create_stack_node(0, 0, cur_func);
 		append(input, input_tail, &input_func);
 		count++;
                 sprintf(cur_func, "");
 	    } else if (num_set) {
-		input_int = create_node(cur_n, 0, NULL);
+		input_int = create_stack_node(cur_n, 0, NULL);
 		append(input, input_tail, &input_int);
                 count++;
 	    }
 	    cur_n = 0;
 	    num_set = 0;
 	    sprintf(cur_func, "");
-	    input_op = create_node(ch, 1, NULL);
+	    input_op = create_stack_node(ch, 1, NULL);
 	    append(input, input_tail, &input_op);
             count++;
 	} else if (isalpha(ch))
@@ -48,11 +48,20 @@ int parse_input(char *input_string, s **input, s **input_tail)
     // because the exit-cond is ch != '\0', we miss out on pushing the last number
     // in the equation...
     if (cur_n) {
-        input_int = create_node(cur_n, 0, NULL);
+        input_int = create_stack_node(cur_n, 0, NULL);
         append(input, input_tail, &input_int);
         count++;
     }
     return count;
+}
+
+void set_functions(h **head)
+{
+    h *f = create_hash_node("max", 2);
+    hash_push(head, &f);
+
+    f = create_hash_node("sin", 1);
+    hash_push(head, &f);
 }
 
 int main(int argc, char **argv)
@@ -62,15 +71,18 @@ int main(int argc, char **argv)
     s *output = NULL,
         *output_tail = NULL,
         *operators = NULL;
+    h *functions = NULL;
 
     char input_string[30];
     printf("Input an equation: \n\t");
     scanf("%30[^\n]", input_string);
 
+    set_functions(&functions);
+
     if (parse_input(input_string, &input, &input_tail) == -1)
 	return 1;  // ERROR
     convert_to_rpn(input, &output, &output_tail);
-    float result = reverse_polish_calculation(&output);
+    float result = reverse_polish_calculation(&output, &functions);
     printf("Result: %f\n", result);
 
     return 0;

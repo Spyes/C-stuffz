@@ -37,18 +37,18 @@ int func_args(char *func)
     if (strcmp(func, "sin") == 0) return 1;
 }
 
-float reverse_polish_calculation(s **head)
+float reverse_polish_calculation(s **head, h **functions)
 {
     s *curr, *temp;
     s *num_curr, *num_stack_head = NULL;
     int args;
-    s *n1, *n2;
+    h *f;
     float result;
 
     curr = (*head);
     while (curr) {
         if (curr->val) {
-            num_curr = create_node(curr->val, 0, NULL);
+            num_curr = create_stack_node(curr->val, 0, NULL);
             push(&num_stack_head, &num_curr);
 	    temp = curr->next;
 	    free(curr);
@@ -57,17 +57,16 @@ float reverse_polish_calculation(s **head)
         }
 
 	if (curr->oper) {
-	    n2 = pop(&num_stack_head);
-	    n1 = pop(&num_stack_head);
-	    if (!n1 || !n2)
-		return -1; // not enough values in stack - ERROR
 	    result = do_oper_calculation(curr->oper, n1->val, n2->val);
 	} else if (curr->func) {
-	    args = func_args(curr->func);
+            f = find(functions, curr->func);
+            if (!f)
+                return -1;  // ERROR!
+	    args = f->args;
 	    result = do_func_calculation(curr->func, n1->val, n2->val);
 	}
 
-        num_curr = create_node(result, 0, NULL);
+        num_curr = create_stack_node(result, 0, NULL);
         push(&num_stack_head, &num_curr);
 	temp = curr->next;
 	free(curr);
