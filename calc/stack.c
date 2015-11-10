@@ -7,16 +7,20 @@ s *create_node(float val, int oper, char *func)
     s *new_node = (s*)malloc(sizeof(s));
     if (!new_node)
         return NULL;  // ERROR
-    if (oper)
+    if (oper) {
         new_node->oper = val;
-    else if (func) {
+	new_node->func = NULL;
+	new_node->val = 0;
+    } else if (func) {
 	char *tempfunc = (char*)malloc(sizeof(func));
 	sprintf(tempfunc, "%s", func);
 	new_node->func = tempfunc;
 	new_node->oper = 0;
+	new_node->val = 0;
     } else {
         new_node->val = val;
         new_node->oper = 0;
+	new_node->func = NULL;
     }
     new_node->next = NULL;
     return new_node;

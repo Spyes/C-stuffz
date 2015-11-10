@@ -70,19 +70,8 @@ int main(int argc, char **argv)
     if (parse_input(input_string, &input, &input_tail) == -1)
 	return 1;  // ERROR
     convert_to_rpn(input, &output, &output_tail);
-    s *cur = output;
-    while (cur) {
-        if (cur->func)
-            printf("%s ", cur->func);
-        else if (cur->oper)
-            printf("%c ", cur->oper);
-        else
-            printf("%.1f ", cur->val);
-        cur = cur->next;
-    }
-    printf("\n");
-//    float result = reverse_polish_calculation(&output);
-//    printf("Result: %f\n", result);
+    float result = reverse_polish_calculation(&output);
+    printf("Result: %f\n", result);
 
     return 0;
 }

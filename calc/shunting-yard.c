@@ -101,30 +101,38 @@ int convert_to_rpn(s *input, s **output, s **output_tail)
 		o2 = operators;
 		if (!o2)
 		    return -1;
-		while(o2->oper != '(') {
+		while(o2->oper && o2->oper != '(') {
 		    append_operators_to_output_queue(&operators, output, output_tail, &o2);
 		    if (!o2)  // mismatching parans
 			return -1;
 		}
-		pop(&operators);
+		if (operators->oper == '(')
+		    pop(&operators);
 		break;
-	    case (!'('):
+	    case '*':
+	    case '/':
+	    case '+':
+	    case '-':
+	    case '^':
 		o2 = operators;
 		while (o2 && o2->oper != '(' &&
 		       operators_precedence_check(curr, o2)) {
 		    append_operators_to_output_queue(&operators, output, output_tail, &o2);
 		    o2 = o2->next;
 		}
-		break;
-	    default:
 		push(&operators, &curr);
 		break;
+	    case '(':
+		push(&operators, &curr);
+		break;
+	    default:
+		return -1;
+		break;
 	    }
-        } else if (curr->func) {
+        } else if (curr->func)
             push(&operators, &curr);
-        } else {
+        else
 	    append(output, output_tail, &curr);
-        }
     }
 
     while (operators != NULL) {

@@ -8,9 +8,17 @@ struct stack {
     struct stack *next;
 };
 
-typedef struct stack s;
+struct hash {
+    char *func;
+    int args;
+    struct stack *next;
+};
 
-s *create_node(float val, int oper, char *func);
+typedef struct stack s;
+typedef struct hash  h;
+
+s *create_stack_node(float val, int oper, char *func);
+h *create_hash_node(char*func, int args);
 
 void append(s **head, s **tail, s **node);
 
