@@ -1,33 +1,26 @@
-
-#include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-#include "stack.h"
+#include "hash.h"
 
-h *create_hash_node(char *func, int args)
+int encode_string(char *str)
 {
-    h *new_node = (h*)malloc(sizeof(h));
-    char *tempfunc = (char*)malloc(sizeof(func));
-    sprintf(tempfunc, "%s", func);
-    new_node->func = tempfunc;
-    new_node->args = args;
-    new_node->next = NULL;
-    return new_node;
-}
-
-void hash_push(h **head, h **node)
-{
-    (*node)->next = (*head);
-    (*head) = (*node);
-}
-
-h *find(h **head, char *str)
-{
-    h *curr = (*head);
-    while (curr) {
-        if (strcmp(curr->func, str) == 0)
-            return curr;
-        curr = curr->next;
+    int i,
+	ch,
+	n,
+	hash_key = 0;
+    for (i = 0, ch = str[i]; ch != '\0'; i++, ch = str[i]) {
+	n = ch - '0';
+	hash_key += n;
     }
-    return NULL;
+
+    hash_key %= (i * 12);
+    return hash_key;
+}
+
+int main(int argc, char **argv)
+{
+    char input[30];
+    scanf("%30[^\n]", input);
+    int hash_key = encode_string(input);
+    printf("%i\n", hash_key);
+    return 0;
 }
