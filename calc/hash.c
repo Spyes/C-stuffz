@@ -1,26 +1,31 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "hash.h"
 
-int encode_string(char *str)
+#define MULTIPLIER 37
+
+unsigned long hash(const char *str)
 {
-    int i,
-	ch,
-	n,
-	hash_key = 0;
-    for (i = 0, ch = str[i]; ch != '\0'; i++, ch = str[i]) {
-	n = ch - '0';
-	hash_key += n;
+    unsigned long h;
+    unsigned const char *ch;
+
+    ch = (unsigned const char *) str;
+    h = 0;
+    while (*ch != '\0') {
+	h = h * MULTIPLIER + *ch;
+	ch++;
     }
 
-    hash_key %= (i * 12);
-    return hash_key;
+    return h;
 }
 
 int main(int argc, char **argv)
 {
+    unsigned long *hash_table = malloc(sizeof(unsigned long));
     char input[30];
     scanf("%30[^\n]", input);
-    int hash_key = encode_string(input);
-    printf("%i\n", hash_key);
+    unsigned long hash_key = hash(input);
+    hash_table[hash_key] = 2;
+    printf("%lu\n", hash_table[hash_key]);
     return 0;
 }
