@@ -3,6 +3,6 @@
 
 #include "stack.h"
 
-float reverse_polish_calculation(s **head, h **functions);
+float reverse_polish_calculation(s **head, s **functions_hash);
 
 #endif  // REVERSE_POLISH_H

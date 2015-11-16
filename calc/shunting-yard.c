@@ -55,28 +55,6 @@ void append_operators_to_output_queue(s **operators, s **output, s **output_tail
 	(*o2) = (*operators);
 }
 
-void print_stacks(s *out, s *opers)
-{
-    s *cur;
-    char opers_str[10] = "";
-    char out_str[10] = "";
-    cur = out;
-    while (cur) {
-        if (ispunct(cur->val))
-            sprintf(out_str, "%s%c ", out_str, cur->val);
-        else
-            sprintf(out_str, "%s%i ", out_str, cur->val);
-        cur = cur->next;
-    }
-    cur = opers;
-    while (cur) {
-        sprintf(opers_str, "%s%c ", opers_str, cur->val);
-        cur = cur->next;
-    }
-    if (out || opers)
-        printf("%s\t%s\n", out_str, opers_str);
-}
-
 int operators_precedence_check(s *oper1, s *oper2)
 {
     return ((oper_associativity(oper1->oper) == ASSOC_LEFT &&
@@ -90,8 +68,7 @@ int convert_to_rpn(s *input, s **output, s **output_tail)
 {
     s *operators = NULL,
         *curr,
-        *o2,
-        *o;
+        *o2;
     while (input) {
 	curr = pop(&input);
         if (curr->oper) {
@@ -118,7 +95,7 @@ int convert_to_rpn(s *input, s **output, s **output_tail)
 		while (o2 && o2->oper != '(' &&
 		       operators_precedence_check(curr, o2)) {
 		    append_operators_to_output_queue(&operators, output, output_tail, &o2);
-		    o2 = o2->next;
+		    if (o2) o2 = o2->next;
 		}
 		push(&operators, &curr);
 		break;

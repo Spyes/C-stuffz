@@ -1,31 +1,48 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "hash.h"
+#include "stack.h"
 
-#define MULTIPLIER 37
-
-unsigned long hash(const char *str)
+s *create_hash_node(char *func, int args)
 {
-    unsigned long h;
-    unsigned const char *ch;
-
-    ch = (unsigned const char *) str;
-    h = 0;
-    while (*ch != '\0') {
-	h = h * MULTIPLIER + *ch;
-	ch++;
-    }
-
-    return h;
+    s *new_node = (s*)malloc(sizeof(s));
+    char *tempfunc = (char*)malloc(sizeof(func));
+    sprintf(tempfunc, "%s", func);
+    new_node->func = tempfunc;
+    new_node->val = args;
+    new_node->oper = 0;
+    return new_node;
 }
 
-int main(int argc, char **argv)
+int hash_string_function(char *str)
 {
-    unsigned long *hash_table = malloc(sizeof(unsigned long));
-    char input[30];
-    scanf("%30[^\n]", input);
-    unsigned long hash_key = hash(input);
-    hash_table[hash_key] = 2;
-    printf("%lu\n", hash_table[hash_key]);
-    return 0;
+    int hashVal = 0;
+    int ch, i;
+    for (i = 0, ch = str[i]; ch != '\0'; i++, ch = str[i])
+	hashVal = (hashVal * 27 + (ch - '0')) % HASH_SIZE;
+    return hashVal;
+}
+
+void insert(s **hash_table, s **node)
+{
+    int k = hash_string_function((*node)->func);
+    if (hash_table[k] == NULL)
+	hash_table[k] = (*node);
+    else {
+	s *cur = hash_table[k];
+	while (cur->next != NULL)
+	    cur = cur->next;
+	cur->next = (*node);
+    }
+}
+
+s *find(s **hash_table, char *key)
+{
+    int k = hash_string_function(key);
+    s *curr = hash_table[k];
+    while (curr) {
+	if (strcmp(curr, key))
+	    return curr;
+	curr = curr->next;
+    }
+    return NULL;
 }

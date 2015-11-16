@@ -55,13 +55,16 @@ int parse_input(char *input_string, s **input, s **input_tail)
     return count;
 }
 
-void set_functions(h **head)
+void set_functions(s **hash_table)
 {
-    h *f = create_hash_node("max", 2);
-    hash_push(head, &f);
+    int j;
+    for (j = 0; j < HASH_SIZE; j++)
+	hash_table[j] = NULL;
 
-    f = create_hash_node("sin", 1);
-    hash_push(head, &f);
+    s *n = create_hash_node("max", 2);
+    insert(hash_table, &n);
+    n = create_hash_node("exp", 1);
+    insert(hash_table, &n);
 }
 
 int main(int argc, char **argv)
@@ -71,18 +74,18 @@ int main(int argc, char **argv)
     s *output = NULL,
         *output_tail = NULL,
         *operators = NULL;
-    h *functions = NULL;
+    s *functions[HASH_SIZE];
+
+    set_functions(functions);
 
     char input_string[30];
     printf("Input an equation: \n\t");
     scanf("%30[^\n]", input_string);
 
-    set_functions(&functions);
-
     if (parse_input(input_string, &input, &input_tail) == -1)
 	return 1;  // ERROR
     convert_to_rpn(input, &output, &output_tail);
-    float result = reverse_polish_calculation(&output, &functions);
+    float result = reverse_polish_calculation(&output, functions);
     printf("Result: %f\n", result);
 
     return 0;
