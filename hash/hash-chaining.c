@@ -29,9 +29,8 @@ int hash_string_function(char *str)
 {
     int hashVal = 0;
     int ch, i;
-    for (i = 0, ch = str[i]; ch != '\0'; i++, ch = str[i]) {
+    for (i = 0, ch = str[i]; ch != '\0'; i++, ch = str[i])
 	hashVal = (hashVal * 27 + (ch - '0')) % HASH_SIZE;
-    }
     return hashVal;
 }
 
@@ -76,6 +75,21 @@ void print(item *node)
 	node->str ? printf("%s\n", node->str) : printf("%i\n", node->val);
 }
 
+void free_hash_table(item **hashTable)
+{
+    int j;
+    for (j = 0; j < HASH_SIZE; j++) {
+	if (hashTable[j]) {
+	    item *cur = hashTable[j];
+	    item *temp;
+	    while ((temp = cur) != NULL) {
+		cur = temp->next;
+		free(temp);	
+	    }
+	}
+    }
+}
+
 int main(int argc, char **argv)
 {
     item *hashTable[HASH_SIZE];
@@ -93,8 +107,6 @@ int main(int argc, char **argv)
     f = find(hashTable, 10, NULL);
     print(f);
 
-    for (j = 0; j < HASH_SIZE; j++)
-	if (hashTable[j]) free(hashTable[j]);
-
+    free_hash_table(hashTable);
     return 0;
 }
