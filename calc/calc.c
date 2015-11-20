@@ -9,17 +9,15 @@ int parse_input(char *input_string, s **input, s **input_tail)
     s *input_int,
 	*input_op,
 	*input_func;
-    int num_set = 0;
-    int cur_n = 0;
-    int count = 0;
+    int num_set = 0, cur_n = 0, count = 0, negative = 0;
     char cur_func[25] = "";
-    int ch;
-    int i;
+    int ch, i;
     for (i = 0, ch = input_string[i]; ch != '\0'; i++, ch = input_string[i]) {
 	if (isdigit(ch)) {
 	    num_set = 1;
 	    cur_n *= 10;
 	    cur_n += ch - '0';
+	    if (negative) cur_n *= -1;
 	} else if (ispunct(ch)) {
 	    if (!isoper(ch)) return -1;
             if (ch == '(' && cur_func) {
@@ -31,6 +29,13 @@ int parse_input(char *input_string, s **input, s **input_tail)
 		input_int = create_stack_node(cur_n, 0, NULL);
 		append(input, input_tail, &input_int);
                 count++;
+		negative = 0;
+	    } else if (ch == '-') {
+		if (!(*input_tail) || (*input_tail)->oper) {
+		    negative = 1;
+		    continue;
+		} else
+		    negative = 0;
 	    }
 	    cur_n = 0;
 	    num_set = 0;
@@ -41,7 +46,7 @@ int parse_input(char *input_string, s **input, s **input_tail)
 	} else if (isalpha(ch))
 	    sprintf(cur_func, "%s%c", cur_func, ch);
 	else if (isblank(ch))
-            ;
+	    ;
 	else
 	    return -1;
     }

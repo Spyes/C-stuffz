@@ -80,11 +80,13 @@ int convert_to_rpn(s *input, s **output, s **output_tail)
 		    return -1;
 		while(o2->oper && o2->oper != '(') {
 		    append_operators_to_output_queue(&operators, output, output_tail, &o2);
-		    if (!o2)  // mismatching parans
+		    if (!o2)  // mismatching parans - ERROR
 			return -1;
 		}
 		if (operators->oper == '(')
 		    pop(&operators);
+		else
+		    return -1;  // mismatching parans - ERROR
 		break;
 	    case '*':
 	    case '/':

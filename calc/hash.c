@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "stack.h"
 
 s *create_hash_node(char *func, int args)
@@ -40,7 +41,7 @@ s *find(s **hash_table, char *key)
     int k = hash_string_function(key);
     s *curr = hash_table[k];
     while (curr) {
-	if (strcmp(curr, key))
+	if (strcmp(curr->func, key) == 0)
 	    return curr;
 	curr = curr->next;
     }
