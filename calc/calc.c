@@ -1,14 +1,40 @@
 #include "shunting-yard.h"
 #include "reverse-polish.h"
 #include "stack.h"
+#include "error.h"
 #include <stdio.h>
+#include <string.h>
 #include <ctype.h>
+
+void add_func_token(char *func, s **input, s **input_tail, int *count)
+{
+    s *input_func = create_stack_node(0, 0, cur_func);
+    append(input, input_tail, &input_func);
+    (*count)++;
+    sprintf(cur_func, "");
+}
+
+void add_oper_token(int ch, s **input, s **input_tail, int *count, int *cur_n, int *num_set)
+{
+    (*cur_n) = 0;
+    (*num_set) = 0;
+    sprintf(cur_func, "");
+    s *input_op = create_stack_node(ch, 1, NULL);
+    append(input, input_tail, &input_op);
+    (*count)++;
+}
+
+void add_int_token(int cur_n, s **input, s **input_tail, int *count, int *negative)
+{
+    s *input_int = create_stack_node(cur_n, 0, NULL);
+    append(input, input_tail, &input_int);
+    (*count)++;
+    if (negative)
+	(*negative) = 0;    
+}
 
 int parse_input(char *input_string, s **input, s **input_tail)
 {
-    s *input_int,
-	*input_op,
-	*input_func;
     int num_set = 0, cur_n = 0, count = 0, negative = 0;
     char cur_func[25] = "";
     int ch, i;
@@ -20,16 +46,10 @@ int parse_input(char *input_string, s **input, s **input_tail)
 	    if (negative) cur_n *= -1;
 	} else if (ispunct(ch)) {
 	    if (!isoper(ch)) return -1;
-            if (ch == '(' && cur_func) {
-		input_func = create_stack_node(0, 0, cur_func);
-		append(input, input_tail, &input_func);
-		count++;
-                sprintf(cur_func, "");
-	    } else if (num_set) {
-		input_int = create_stack_node(cur_n, 0, NULL);
-		append(input, input_tail, &input_int);
-                count++;
-		negative = 0;
+            if (ch == '(' && (strcmp(cur_func, "") != 0))
+		add_func_token(cur_func, input, input_tail, &count);
+	    else if (num_set) {
+		add_int_token(cur_n, input, input_tail, &count, &negative);
 	    } else if (ch == '-') {
 		if (!(*input_tail) || (*input_tail)->oper) {
 		    negative = 1;
@@ -37,12 +57,7 @@ int parse_input(char *input_string, s **input, s **input_tail)
 		} else
 		    negative = 0;
 	    }
-	    cur_n = 0;
-	    num_set = 0;
-	    sprintf(cur_func, "");
-	    input_op = create_stack_node(ch, 1, NULL);
-	    append(input, input_tail, &input_op);
-            count++;
+	    add_oper_token(ch, input, input_tail, &count, &cur_n, &num_set);
 	} else if (isalpha(ch))
 	    sprintf(cur_func, "%s%c", cur_func, ch);
 	else if (isblank(ch))
@@ -52,11 +67,8 @@ int parse_input(char *input_string, s **input, s **input_tail)
     }
     // because the exit-cond is ch != '\0', we miss out on pushing the last number
     // in the equation...
-    if (cur_n) {
-        input_int = create_stack_node(cur_n, 0, NULL);
-        append(input, input_tail, &input_int);
-        count++;
-    }
+    if (cur_n)
+	add_int_token(cur_n, input, input_tail, &count, NULL);
     return count;
 }
 
@@ -88,7 +100,7 @@ int main(int argc, char **argv)
     scanf("%30[^\n]", input_string);
 
     if (parse_input(input_string, &input, &input_tail) == -1)
-	return 1;  // ERROR
+	error("Can't parse input string");
     convert_to_rpn(input, &output, &output_tail);
     float result = reverse_polish_calculation(&output, functions);
     printf("Result: %f\n", result);

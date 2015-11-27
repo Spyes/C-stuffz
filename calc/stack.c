@@ -1,12 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "stack.h"
+#include "error.h"
 
 s *create_stack_node(float val, int oper, char *func)
 {
     s *new_node = (s*)malloc(sizeof(s));
     if (!new_node)
-        return NULL;  // ERROR
+	error("Couldn't create new node");
     if (oper) {
         new_node->oper = val;
 	new_node->func = NULL;
@@ -44,7 +45,7 @@ void push(s **head, s **node)
 s *pop(s **head)
 {
     if (!(*head))
-	return NULL;  // ERROR
+	error("Couldn't pop from stack");
     s *temp = (*head);
     (*head) = (*head)->next;
     temp->next = NULL;

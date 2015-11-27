@@ -1,4 +1,5 @@
 #include "reverse-polish.h"
+#include "error.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -85,7 +86,7 @@ float reverse_polish_calculation(s **head, s **functions_hash)
 	    result = do_oper_calculation(curr->oper, n1->val, n2->val);
 	} else if (curr->func) {
 	    if ((num_of_args = get_func_args_num(functions_hash, curr->func)) == -1)
-	    	return -1;  // ERROR! function doesn't exist
+		error("Function doesn't exist");
 	    args_head = pop_func_args(&num_stack_head, num_of_args);
 	    result = do_func_calculation(curr->func, &args_head);
 	}
