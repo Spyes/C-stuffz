@@ -64,14 +64,14 @@ int operators_precedence_check(s *oper1, s *oper2)
 	 less_than_precedence(oper1->oper, oper2->oper)));
 }
 
-int convert_to_rpn(s *input, s **output, s **output_tail)
+int convert_to_rpn(s **input, s **output, s **output_tail)
 {
     s *operators = NULL,
 	*curr,
 	*o2;
 
-    while (input) {
-	curr = pop(&input);
+    while ((*input)) {
+	curr = pop(input);
 	if (curr->val) {
 	    // if the token is a number then add it to the output queue
 	    append(output, output_tail, &curr);
@@ -115,68 +115,10 @@ int convert_to_rpn(s *input, s **output, s **output_tail)
 	    }
 	}
     }
-    while (operators != NULL) {
-	if (operators->oper == '(' || operators->oper == ')') // mismatching parans
-	    error("Mismatching parens");
-	append_operators_to_output_queue(&operators, output, output_tail, NULL);
-    }
-}
-/*
-// rpn = reverse polish notation
-int convert_to_rpn(s *input, s **output, s **output_tail)
-{
-    s *operators = NULL,
-        *curr,
-        *o2;
-    while (input) {
-	curr = pop(&input);
-        if (curr->oper) {
-	    switch (curr->oper) {
-	    case ')':
-            case ',':
-		o2 = operators;
-		if (!o2)
-		    return -1;
-		while(o2->oper && o2->oper != '(') {
-		    append_operators_to_output_queue(&operators, output, output_tail, &o2);
-		    if (!o2)
-			error("Mismatching parens");
-		}
-		if (operators->oper == '(')
-		    pop(&operators);
-		else
-		    error("Mismatching parens");
-		break;
-	    case '*':
-	    case '/':
-	    case '+':
-	    case '-':
-	    case '^':
-		o2 = operators;
-		while (o2 && o2->oper != '(' &&
-		       operators_precedence_check(curr, o2)) {
-		    append_operators_to_output_queue(&operators, output, output_tail, &o2);
-		    if (o2) o2 = o2->next;
-		}
-		push(&operators, &curr);
-		break;
-	    case '(':
-		push(&operators, &curr);
-		break;
-	    default:
-		return -1;
-		break;
-	    }
-        } else if (curr->func)
-            push(&operators, &curr);
-        else
-	    append(output, output_tail, &curr);
-    }
 
     while (operators != NULL) {
 	if (operators->oper == '(' || operators->oper == ')') // mismatching parans
 	    error("Mismatching parens");
 	append_operators_to_output_queue(&operators, output, output_tail, NULL);
-    }    
+    }
 }
-*/
