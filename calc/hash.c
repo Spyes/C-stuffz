@@ -11,6 +11,7 @@ s *create_hash_node(char *func, int args)
     new_node->func = tempfunc;
     new_node->val = args;
     new_node->oper = 0;
+    new_node->next = NULL;
     return new_node;
 }
 

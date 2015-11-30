@@ -35,6 +35,8 @@ float do_func_calculation(char *func, s **args_head)
     } else if (strcmp(func, "exp") == 0) {
 	int n1 = pop(args_head)->val;
 	return power(2.71828, n1);
+    } else if (strcmp(func, "quit") == 0) {
+	quit_elegantly();
     }
 }
 

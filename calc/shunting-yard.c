@@ -68,6 +68,7 @@ int convert_to_rpn(s **input, s **output, s **output_tail)
 {
     s *operators = NULL,
 	*curr,
+	*temp,
 	*o2;
 
     while ((*input)) {
@@ -86,7 +87,8 @@ int convert_to_rpn(s **input, s **output, s **output_tail)
 		while (o2 && o2->oper != '(')
 		    append_operators_to_output_queue(&operators, output, output_tail, &o2);
 		if (o2 && o2->oper == '(') {
-		    pop(&operators);
+		    temp = pop(&operators);
+		    free(temp);
 		    o2 = operators;
 		}
 		if (o2 && o2->func)

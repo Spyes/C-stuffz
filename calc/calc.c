@@ -7,6 +7,42 @@
 #include <string.h>
 #include <ctype.h>
 
+char input_string[30];
+s *input = NULL,
+    *input_tail = NULL;
+s *output = NULL,
+    *output_tail = NULL;
+s *functions[HASH_SIZE];
+
+void cleanup()
+{
+    s *cur = NULL, *temp = NULL;
+    cur = input;
+    while (cur) {
+	temp = cur->next;
+	free(cur);
+	cur = temp;
+    }
+
+    cur = output;
+    temp = NULL;
+    while (cur) {
+	temp = cur->next;
+	free(cur);
+	cur = temp;
+    }
+
+    int i;
+    for (i = 0; i < HASH_SIZE; i++) {
+	cur = functions[i];
+	while (cur) {
+	    temp = cur->next;
+	    free(cur);
+	    cur = temp;
+	}
+    }
+}
+
 void add_func_token(char *cur_func, s **input, s **input_tail, int *count)
 {
     s *input_func = create_stack_node(0, 0, cur_func);
@@ -83,57 +119,34 @@ void set_functions(s **hash_table)
     insert(hash_table, &n);
     n = create_hash_node("exp", 1);
     insert(hash_table, &n);
+    n = create_hash_node("quit", 0);
+    insert(hash_table, &n);
+}
+
+void get_input(char *input_string)
+{
+    printf("Input an equation: \n\t");    
+    int ch;
+    while ((ch = getchar()) != '\n')
+	sprintf(input_string, "%s%c", input_string, ch);
 }
 
 int main(int argc, char **argv)
 {
-    s *input = NULL,
-	*input_tail = NULL;
-    s *output = NULL,
-        *output_tail = NULL;
-    s *functions[HASH_SIZE];
-
     int i;
     for (i = 0; i < HASH_SIZE; i++)
 	functions[i] = NULL;
-
-    
     set_functions(functions);
 
-    char input_string[30];
-    printf("Input an equation: \n\t");
-    scanf("%30[^\n]", input_string);
-
-    if (parse_input(input_string, &input, &input_tail) == -1)
-	error("Can't parse input string");
-    convert_to_rpn(&input, &output, &output_tail);
-    float result = reverse_polish_calculation(&output, functions);
-    printf("Result: %f\n", result);
-
-    s *cur = NULL, *temp = NULL;
-    cur = input;
-    while (cur) {
-	temp = cur->next;
-	free(cur);
-	cur = temp;
+    while (get_input(input_string), strcmp(input_string, "quit") < 0) {
+	if ((parse_input(input_string, &input, &input_tail) == -1) || input == NULL)
+	    error("Can't parse input string");
+	convert_to_rpn(&input, &output, &output_tail);
+	float result = reverse_polish_calculation(&output, functions);
+	printf("Result: %f\n", result);
+	sprintf(input_string, "");
     }
 
-    cur = output;
-    temp = NULL;
-    while (cur) {
-	temp = cur->next;
-	free(cur);
-	cur = temp;
-    }
-
-    for (i = 0; i < HASH_SIZE; i++) {
-	cur = functions[i];
-	while (cur) {
-	    temp = cur->next;
-	    free(cur);
-	    cur = temp;
-	}
-    }
-    
+    cleanup();
     return 0;
 }
