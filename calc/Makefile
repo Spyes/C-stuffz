@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-c -Wall
 DEBUG=-g
-SOURCES=stack.c hash.c reverse-polish.c shunting-yard.c calc.c
+SOURCES=stack.c hash.c reverse-polish.c shunting-yard.c calc.c error.c
 OBJECTS=$(SOURCES: .c=.o)
 EXEC=calc
 
