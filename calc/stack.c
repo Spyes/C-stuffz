@@ -7,7 +7,7 @@ s *create_stack_node(float val, int oper, char *func)
 {
     s *new_node = (s*)malloc(sizeof(s));
     if (!new_node)
-	error("Couldn't create new node");
+	quit_error("Couldn't create new node");
     if (oper) {
         new_node->oper = val;
 	new_node->func = NULL;
@@ -45,7 +45,7 @@ void push(s **head, s **node)
 s *pop(s **head)
 {
     if (!(*head))
-	error("Couldn't pop from stack");
+	quit_error("Couldn't pop from stack");
     s *temp = (*head);
     (*head) = (*head)->next;
     temp->next = NULL;

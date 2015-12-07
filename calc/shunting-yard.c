@@ -80,21 +80,21 @@ int convert_to_rpn(s **input, s **output, s **output_tail)
 	    // if the token is a function then push it onto the stack
 	    push(&operators, &curr);
 	} else if (curr->oper) {
-	    if (curr->oper == '(')
+	    if (curr->oper == '(') {
 		push(&operators, &curr);
-	    else if (curr->oper == ')') {
+	    } else if (curr->oper == ')') {
 		o2 = operators;
 		while (o2 && o2->oper != '(')
 		    append_operators_to_output_queue(&operators, output, output_tail, &o2);
 		if (o2 && o2->oper == '(') {
 		    temp = pop(&operators);
-		    free(temp);
+		    if (temp) free(temp);
 		    o2 = operators;
 		}
 		if (o2 && o2->func)
 		    append_operators_to_output_queue(&operators, output, output_tail, &o2);
 		else
-		    ; // ERROR
+		    error("error"); // ERROR
 	    } else if (curr->oper == ',') {
 		// if the token is a function separator
 		o2 = operators;
@@ -112,6 +112,8 @@ int convert_to_rpn(s **input, s **output, s **output_tail)
 		    // o1 is right-associative and its precedence is less than o2
 		    append_operators_to_output_queue(&operators, output, output_tail, &o2);
 		    // pop o2 off the stack onto the output queue
+		temp = pop(&operators);
+		if (temp) free(temp);
 		// push o1 onto the operators stack
 		push(&operators, &curr);
 	    }

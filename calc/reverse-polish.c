@@ -4,15 +4,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
-float power(float n, float b)
+s *num_stack_head = NULL;
+
+void cleanup_calc()
 {
-    if (b == 0) return 1;
-    return n * power(n, b - 1);
+    s *cur, *temp;
+    cur = num_stack_head;
+    while (cur) {
+	temp = cur->next;
+	free(cur);
+	cur = temp;
+    }
 }
 
-float do_oper_calculation(int oper, float n1, float n2)
+float do_oper_calculation(int oper)
 {
+    s *temp;
+    temp = pop(&num_stack_head);
+    float n2 = temp->val;
+    free(temp);
+    temp = pop(&num_stack_head);
+    float n1 = temp->val;
+    free(temp);
+
     if (oper == '+')
 	return n1 + n2;
     else if (oper == '-')
@@ -22,21 +38,29 @@ float do_oper_calculation(int oper, float n1, float n2)
     else if (oper == '/')
 	return n1 / n2;
     else if (oper == '^')
-	return power(n1, n2);
+	return pow(n1, n2);
 }
 
 float do_func_calculation(char *func, s **args_head)
 {
+    s *temp;
     if (strcmp(func, "max") == 0) {
-	int n1 = pop(args_head)->val;
-	int n2 = pop(args_head)->val;
+	temp = pop(args_head);
+	float n1 = temp->val;
+	free(temp);
+	temp = pop(args_head);
+	float n2 = temp->val;
+	free(temp);
 	if (n1 > n2)
 	    return n1;
 	return n2;
     } else if (strcmp(func, "exp") == 0) {
-	int n1 = pop(args_head)->val;
-	return power(2.71828, n1);
+	temp = pop(args_head);
+	float n1 = temp->val;
+	free(temp);
+	return pow(2.71828, n1);
     } else if (strcmp(func, "quit") == 0) {
+	cleanup_calc();
 	quit_elegantly();
     }
 }
@@ -58,7 +82,6 @@ s *pop_func_args(s **head, int amt)
 	temp = pop(head);
 	temp->next = args_head;
 	args_head = temp;
-	//free(head);
     }
     return args_head;
 }
@@ -66,27 +89,24 @@ s *pop_func_args(s **head, int amt)
 float reverse_polish_calculation(s **head, s **functions_hash)
 {
     s *curr, *temp;
-    s *num_curr, *num_stack_head = NULL;
+    s *num_curr;
     s *n1, *n2;
     s *args_head;
     int num_of_args;
     float result;
+    num_stack_head = NULL;
 
     curr = (*head);
     while (curr) {
         if (curr->val) {
             num_curr = create_stack_node(curr->val, 0, NULL);
             push(&num_stack_head, &num_curr);
-	    temp = curr->next;
-	    //free(curr);
-	    curr = temp;
+	    curr = curr->next;
             continue;
         }
 	
 	if (curr->oper) {
-	    n2 = pop(&num_stack_head);
-	    n1 = pop(&num_stack_head);
-	    result = do_oper_calculation(curr->oper, n1->val, n2->val);
+	    result = do_oper_calculation(curr->oper);
 	} else if (curr->func) {
 	    if ((num_of_args = get_func_args_num(functions_hash, curr->func)) == -1)
 		error("Function doesn't exist");
@@ -96,10 +116,10 @@ float reverse_polish_calculation(s **head, s **functions_hash)
 
         num_curr = create_stack_node(result, 0, NULL);
         push(&num_stack_head, &num_curr);
-	temp = curr->next;
-	//free(curr);
-	curr = temp;
+	curr = curr->next;
     }
 
-    return num_curr->val;
+    float val = num_curr->val;
+    cleanup_calc();
+    return val;
 }
