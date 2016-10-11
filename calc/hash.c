@@ -6,9 +6,7 @@
 s *create_hash_node(char *func, int args)
 {
     s *new_node = (s*)malloc(sizeof(s));
-    char *tempfunc = (char*)malloc(sizeof(func));
-    sprintf(tempfunc, "%s", func);
-    new_node->func = tempfunc;
+    new_node->func = func;
     new_node->val = args;
     new_node->oper = 0;
     new_node->next = NULL;

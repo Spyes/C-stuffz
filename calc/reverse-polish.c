@@ -101,7 +101,14 @@ float reverse_polish_calculation(s **head, s **functions_hash)
         if (curr->val) {
             num_curr = create_stack_node(curr->val, 0, NULL);
             push(&num_stack_head, &num_curr);
+<<<<<<< Updated upstream
 	    curr = curr->next;
+=======
+	    temp = curr->next;
+            if (curr)
+                free(curr);
+	    curr = temp;
+>>>>>>> Stashed changes
             continue;
         }
 	
@@ -116,7 +123,14 @@ float reverse_polish_calculation(s **head, s **functions_hash)
 
         num_curr = create_stack_node(result, 0, NULL);
         push(&num_stack_head, &num_curr);
+<<<<<<< Updated upstream
 	curr = curr->next;
+=======
+	temp = curr->next;
+        if (curr)
+            free(curr);
+	curr = temp;
+>>>>>>> Stashed changes
     }
 
     float val = num_curr->val;

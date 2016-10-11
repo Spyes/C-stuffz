@@ -8,6 +8,7 @@
 #include <ctype.h>
 #include <math.h>
 
+<<<<<<< Updated upstream
 char input_string[255];
 s *input = NULL,
     *input_tail = NULL;
@@ -50,6 +51,8 @@ void cleanup()
     }
 }
 
+=======
+>>>>>>> Stashed changes
 void add_func_token(char *cur_func, s **input, s **input_tail, int *count)
 {
     s *input_func = create_stack_node(0, 0, cur_func);
@@ -58,7 +61,11 @@ void add_func_token(char *cur_func, s **input, s **input_tail, int *count)
     sprintf(cur_func, "");
 }
 
+<<<<<<< Updated upstream
 void add_oper_token(int ch, s **input, s **input_tail, int *count, char *cur_func, float *cur_n, int *num_set)
+=======
+void add_oper_token(int ch, s **input, s **input_tail, int *count, char *cur_func, int *cur_n, int *num_set)
+>>>>>>> Stashed changes
 {
     (*cur_n) = 0;
     (*num_set) = 0;
@@ -147,11 +154,18 @@ int get_input(char *input_string)
     return 1;
 }
 
+<<<<<<< Updated upstream
 int main(int argc, char **argv)
 {
     int i;
     for (i = 0; i < HASH_SIZE; i++)
 	functions[i] = NULL;
+=======
+    int i;
+    for (i = 0; i < HASH_SIZE; i++)
+        functions[i] = NULL;
+    
+>>>>>>> Stashed changes
     set_functions(functions);
 
     while (get_input(input_string)) {
@@ -166,6 +180,17 @@ int main(int argc, char **argv)
 	sprintf(input_string, "");
     }
 
+<<<<<<< Updated upstream
     cleanup();
+=======
+    s *curr, *temp;
+    for (i = 0; i < HASH_SIZE; i++) {
+        while((curr = functions[i]) != NULL) {
+            functions[i] = functions[i]->next;
+            free(curr);
+        }
+    }
+
+>>>>>>> Stashed changes
     return 0;
 }
